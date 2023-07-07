@@ -1,9 +1,9 @@
 // Importation des modules. 
-const { Sequelize, DataTypes } = require("sequelize");
+const { DataTypes } = require("sequelize");
+const DB = require("../database/db")
 
 // Modèle pour la création d'un utilisateur.
-module.exports = (Sequelize, DataTypes) => {
-    return Sequelize.define( 'User', {
+const UserModel = DB.define( 'User', {
         id: {
             // INTEGER correspond à un nombre entier, UNSIGNED correspond à un nombre positif
             type: DataTypes.INTEGER,
@@ -29,5 +29,10 @@ module.exports = (Sequelize, DataTypes) => {
              // Le champ ne peut pas être null.
              allowNull: false
         }
-    })
-};
+    });
+
+// Pour créer le modèle dans la base de données si elle n'existe pas.
+// DB.sync();
+
+// Exportation pour pouvoir y accéder depuis un autre fichier.
+module.exports = UserModel;
