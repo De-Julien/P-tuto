@@ -4,11 +4,11 @@ const DB = require("../database/db")
 
 // Modèle pour la création d'un utilisateur.
 const UserModel = DB.define( 'User', {
-        id: {
-            // INTEGER correspond à un nombre entier, UNSIGNED correspond à un nombre positif
+        userId: {
+            // INTEGER correspond à un nombre entier, UNSIGNED correspond à un nombre positif.
             type: DataTypes.INTEGER,
             primaryKey: true,
-            // Créer automatiquement un id et ajoute +1 pour chaque nouvelle création
+            // Créer automatiquement un id et ajoute +1 pour chaque nouvelle création.
             autoIncrement: true,
             // Le champ ne peut pas être null.
             allowNull: false

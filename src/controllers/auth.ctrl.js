@@ -49,10 +49,10 @@ exports.signIn = (req, res) => {
                         } else {
                             // Envoie token à l'utilisateur.
                             res.status(200).json({
-                                userId: user.id,
+                                userId: user.userId,
                                 token: jwt.sign(
                                     {
-                                        id: user.id,
+                                        id: user.userId,
                                         pseudo: user.pseudo,
                                         email: user.email,
                                         picture: user.picture
@@ -67,8 +67,4 @@ exports.signIn = (req, res) => {
             }
         })
         .catch(err => res.status(500).json({ message: `une erreur est survenue ! ${err}` }))
-};
-// Fonction de la route GET (logout).
-exports.logout = (req, res) => {
-
 };
