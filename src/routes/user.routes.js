@@ -7,5 +7,5 @@ router.post('/register', authCtrl.signUp);
 // Route pour se log.
 router.post('/login', authCtrl.signIn);
 
-
+// Exportation pour pouvoir y accéder depuis un autre fichier.
 module.exports = router;

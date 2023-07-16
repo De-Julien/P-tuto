@@ -37,7 +37,10 @@ const PublishModel = DB.define('Publish', {
 });
 
 // Lie les utilisateurs aux publications.
+// Un utilisateur peut avoir plusieurs publications (hasMany).
+// ForeignKey défini le nom du lien (Dans la base de données un colonne "userId" sera ajouté).
 UserModel.hasMany(PublishModel, { foreignKey: "userId" });
+// Une publication ne peut avoir qu'un seul utilisateur (belongsTo).
 PublishModel.belongsTo(UserModel,  { foreignKey: "userId" });
 
 // Lie les likes aux publications.
