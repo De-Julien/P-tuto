@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
             userId: userId,
         };
         next();
-    } catch (error) {
-        res.status(401).json({ error });
+    } catch (err) {
+        res.status(401).json({ message: `vous devez vous connecter ! ${err}` });
     }
 };

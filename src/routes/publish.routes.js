@@ -9,7 +9,7 @@ router.get("/", log, publishCtrl.getAllPublish);
 router.get("/like", log, publishCtrl.getAllLikes);
 router.post('/', log, uploadImage, publishCtrl.postPublish);
 router.post('/:id/like', log, publishCtrl.postLikePublish);
-router.put('/:id', log, publishCtrl.updatePublish);
+router.put('/:id', log, uploadImage, publishCtrl.updatePublish);
 router.delete('/:id', log, publishCtrl.deletePublish);
 
 // Exportation pour pouvoir y accéder depuis un autre fichier.
