@@ -1,6 +1,7 @@
 // Importation des modules.
 const PublishModel = require('../models/publish.model');
-const UserModel = require('../models/user.model')
+const UserModel = require('../models/user.model');
+const LikeModel = require('../models/Like.model');
 const fs = require('fs');
 
 // Fonction de la route GET (getAllPublish).
@@ -10,7 +11,7 @@ exports.getAllPublish = (req, res) => {
     // Attributes avec exclude permet d'exclure les paramètres choisi du modèle.
     PublishModel.findAll(
         {
-            include: [{ model: UserModel, attributes: { exclude: ["createdAt", "updatedAt", "email", "password"] } }],
+            include: [{ model: UserModel, attributes: { exclude: ["createdAt", "updatedAt", "email", "password", "userId"] } }],
         })
         .then((allPublish) => res.status(200).json(allPublish))
         .catch(error => res.status(400).json({ error }))
@@ -59,7 +60,55 @@ exports.postPublish = (req, res) => {
 };
 // Fonction de la route POST (postLikePublish).
 exports.postLikePublish = (req, res) => {
+    // Cherche dans la base de données la publication.
+    PublishModel.findOne({ where: { PublishId: req.params.id } })
+        .then((onePublish) => {
+            // Cherche dans la base de données le like de la publication en fonction de l'utilisateur.
+            LikeModel.findOne({ where: { publishId: req.params.id, userId: req.auth.userId } })
+                .then((likeList) => {
+                    const createLike = new LikeModel({
+                        ...req.body,
+                        userId: req.auth.userId,
+                        publishId: onePublish.publishId
+                    })
+                    // Si l'utilisateur n'a pas encore like la publication.
+                    if (!likeList) {
+                        if (req.body.myLike === 1) {
 
+                            onePublish.increment({ like: 1 }, { where: { publishId: req.params.id } })
+                                .then(() => res.status(200))
+                                .catch((error) => res.status(400).json({ error }));
+                            createLike.save()
+                                .then(() => res.status(200).json({ message: "J'aime" }))
+                                .catch((error) => res.status(400).json({ error }));
+                        } else {
+                            res.status(401).json({ message: "Le vote n'a pas été effectué, vérifier les données envoyées !" });
+                        }
+                    } // Si l'utilisateur a like la publication.
+                    else {
+                        if (likeList.myLike === 0 && req.body.myLike === 1) {
+                            onePublish.increment({ like: 1 }, { where: { publishId: req.params.id } })
+                                .then(() => res.status(200))
+                                .catch((error) => res.status(400).json({ error }));
+                            likeList.update(req.body)
+                                .then(() => res.status(200).json({ message: "J'aime" }))
+                                .catch((error) => res.status(400).json({ error }));
+                        } else if (likeList.myLike === 1 && req.body.myLike === 0) {
+                            onePublish.increment({ like: -1 }, { where: { publishId: req.params.id } })
+                                .then(() => res.status(200))
+                                .catch((error) => res.status(400).json({ error }));
+                            likeList.update(req.body)
+                                .then(() => res.status(200).json({ message: "Je n'aime plus" }))
+                                .catch((error) => res.status(400).json({ error }));
+                        }
+                        else {
+                            res.status(401).json({ message: "Le vote a déjà été effectué" });
+                        }
+                    }
+                })
+                .catch((error) => res.status(400).json({ error }));
+        })
+        .catch((error) => res.status(400).json({ error }));
 };
 // Fonction de la route PUT (updatePublish).
 exports.updatePublish = (req, res) => {
@@ -98,7 +147,7 @@ exports.updatePublish = (req, res) => {
                             .catch(error => res.status(404).json({ error }));
                     }
                 } else {
-                   // Met à jour la base de données.
+                    // Met à jour la base de données.
                     onePublish.update(req.body)
                         .then(() => res.status(200).json({ message: "La publication à été modifiée !!" }))
                         .catch(error => res.status(404).json({ error }));
@@ -120,10 +169,10 @@ exports.updatePublish = (req, res) => {
 };
 // Fonction de la route DELETE (deletePublish).
 exports.deletePublish = (req, res) => {
-    // trouve l'ID du produit dans la base de données
+    // Trouve l'ID du produit dans la base de données.
     PublishModel.findOne({ where: { publishId: req.params.id } })
         .then((onePublish) => {
-           // Contrôle si l'userId de la base de données est différent de celui du token.
+            // Contrôle si l'userId de la base de données est différent de celui du token.
             if (onePublish.userId == req.auth.userId) {
                 if (onePublish.picture) {
                     // Récupère l'image à modifier.
@@ -137,7 +186,7 @@ exports.deletePublish = (req, res) => {
                         .then(() => res.status(200).json({ message: "La publication à été supprimée !!" }))
                         .catch(error => res.status(500).json({ error }))
                 } else {
-                     // Efface la publication selectionné dans la base de données.
+                    // Efface la publication selectionné dans la base de données.
                     onePublish.destroy()
                         .then(() => res.status(200).json({ message: "La publication à été supprimée !!" }))
                         .catch(error => res.status(500).json({ error }))

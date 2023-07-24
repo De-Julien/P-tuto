@@ -3,6 +3,7 @@ const express = require('express');
 require('dotenv').config();
 require('./src/database/db');
 const path = require('path');
+const cors = require('cors');
 const morgan = require('morgan');
 const favicon = require('serve-favicon');
 const userRoutes = require('./src/routes/user.routes');
@@ -10,6 +11,17 @@ const publishRoutes = require('./src/routes/publish.routes');
 
 // Utilise express pour chaque appel de app.
 const app = express();
+
+const corsOption = {
+    origin: process.env.CLIENT_URL,
+    credentials:true,
+    'allowHeaders': ['sessionId', 'Content-Type'],
+    'exposedHeaders': ['sessionId'],
+    'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    'preflightContinue': false
+};
+
+app.use(cors({ corsOption }));
 
 // Gère les requêtes du type json.
 app.use (express.json());
